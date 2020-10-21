@@ -24,7 +24,6 @@ function AZP.GU.VersionControl:LevelStats()
 end
 
 function AZP.GU.OnLoad:LevelStats()
-    print("LevelStats OL")
     ModuleStats["Frames"]["LevelStats"]:SetSize(250, 100)
     GameUtilityAddonFrame:RegisterEvent("PLAYER_XP_UPDATE")
     ModuleStats["Frames"]["LevelStats"].contentText = ModuleStats["Frames"]["LevelStats"]:CreateFontString(nil, "ARTWORK", "GameFontNormal")
