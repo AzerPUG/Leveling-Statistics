@@ -2,7 +2,7 @@ local GlobalAddonName, AGU = ...
 
 local initialConfig = AGU.initialConfig
 
-local AZPGULevelStatsVersion = 5
+local AZPGULevelStatsVersion = 6
 local dash = " - "
 local name = "GameUtility" .. dash .. "LevelStats"
 local nameFull = ("AzerPUG " .. name)
