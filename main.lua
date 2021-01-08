@@ -2,7 +2,7 @@ local GlobalAddonName, AGU = ...
 
 local initialConfig = AGU.initialConfig
 
-local AZPGULevelStatsVersion = 6
+local AZPGULevelStatsVersion = 7
 local dash = " - "
 local name = "GameUtility" .. dash .. "LevelStats"
 local nameFull = ("AzerPUG " .. name)
@@ -25,6 +25,7 @@ end
 
 function AZP.GU.OnLoad:LevelStats()
     ModuleStats["Frames"]["LevelStats"]:SetSize(250, 100)
+    addonMain:ChangeOptionsText()
     GameUtilityAddonFrame:RegisterEvent("PLAYER_XP_UPDATE")
     ModuleStats["Frames"]["LevelStats"].contentText = ModuleStats["Frames"]["LevelStats"]:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     ModuleStats["Frames"]["LevelStats"].contentText:SetText("No EXP Gained Yet.")
@@ -71,4 +72,26 @@ end
 
 function addonMain:Round(x)
     return math.floor(x + 0.5)
+end
+
+function addonMain:ChangeOptionsText()
+    LevelStatsSubPanelPHTitle:Hide()
+    LevelStatsSubPanelPHText:Hide()
+    LevelStatsSubPanelPHTitle:SetParent(nil)
+    LevelStatsSubPanelPHText:SetParent(nil)
+
+    local LevelStatsSubPanelHeader = LevelStatsSubPanel:CreateFontString("LevelStatsSubPanelHeader", "ARTWORK", "GameFontNormalHuge")
+    LevelStatsSubPanelHeader:SetText(promo)
+    LevelStatsSubPanelHeader:SetWidth(LevelStatsSubPanel:GetWidth())
+    LevelStatsSubPanelHeader:SetHeight(LevelStatsSubPanel:GetHeight())
+    LevelStatsSubPanelHeader:SetPoint("TOP", 0, -10)
+
+    local LevelStatsSubPanelText = LevelStatsSubPanel:CreateFontString("LevelStatsSubPanelText", "ARTWORK", "GameFontNormalHuge")
+    LevelStatsSubPanelText:SetWidth(LevelStatsSubPanel:GetWidth())
+    LevelStatsSubPanelText:SetHeight(LevelStatsSubPanel:GetHeight())
+    LevelStatsSubPanelText:SetPoint("TOPLEFT", 0, -50)
+    LevelStatsSubPanelText:SetText(
+        "AzerPUG-GameUtility-LevelStats does not have options yet.\n" ..
+        "For feature requests visit our Discord Server!"
+    )
 end
