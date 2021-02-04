@@ -64,7 +64,7 @@ function addonMain:UpdateXP()
     )
 end
 
-function AZP.GU.OnEvent:LevelStats(self, event, ...)
+function AZP.GU.OnEvent:LevelStats(event, ...)
     if event == "PLAYER_XP_UPDATE" then
         addonMain:UpdateXP()
     end
