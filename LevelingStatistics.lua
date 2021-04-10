@@ -14,9 +14,7 @@ local name = "GameUtility" .. dash .. "LevelStats"
 local nameFull = ("AzerPUG " .. name)
 local promo = (nameFull .. dash ..  AZPGULevelStatsVersion)
 
-local addonMain = LibStub("AceAddon-3.0"):NewAddon("GameUtility-LevelStats", "AceConsole-3.0")
-
-local ModuleStats = AZP.GU.ModuleStats
+local ModuleStats = AZP.Core.ModuleStats        -- Change to direct call!
 
 local xpMax = 0
 local xpCur = 0
@@ -25,19 +23,19 @@ local xpNeed = 0
 local curLevel = 0
 local startTime = 0
 
-function AZP.GU.VersionControl:LevelStats()
+function AZP.VersionControl:LevelingStatistics()
     return AZPGULevelStatsVersion
 end
 
-function AZP.GU.OnLoad:LevelStats()
-    ModuleStats["Frames"]["LevelStats"]:SetSize(250, 100)
-    addonMain:ChangeOptionsText()
+function AZP.OnLoad:LevelingStatistics()
+    ModuleStats["Frames"]["LevelingStatistics"]:SetSize(250, 100)
+    AZP.LevelingStatistics:ChangeOptionsText()
     GameUtilityAddonFrame:RegisterEvent("PLAYER_XP_UPDATE")
-    ModuleStats["Frames"]["LevelStats"].contentText = ModuleStats["Frames"]["LevelStats"]:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    ModuleStats["Frames"]["LevelStats"].contentText:SetText("No EXP Gained Yet.")
-    ModuleStats["Frames"]["LevelStats"].contentText:SetPoint("LEFT", 10, 0)
-    ModuleStats["Frames"]["LevelStats"].contentText:SetSize(250, 100)
-    ModuleStats["Frames"]["LevelStats"].contentText:SetJustifyH("LEFT")
+    ModuleStats["Frames"]["LevelingStatistics"].contentText = ModuleStats["Frames"]["LevelingStatistics"]:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    ModuleStats["Frames"]["LevelingStatistics"].contentText:SetText("No EXP Gained Yet.")
+    ModuleStats["Frames"]["LevelingStatistics"].contentText:SetPoint("LEFT", 10, 0)
+    ModuleStats["Frames"]["LevelingStatistics"].contentText:SetSize(250, 100)
+    ModuleStats["Frames"]["LevelingStatistics"].contentText:SetJustifyH("LEFT")
 
     xpMax = UnitXPMax("player")
     xpCur = UnitXP("player")
@@ -46,7 +44,7 @@ function AZP.GU.OnLoad:LevelStats()
     startTime = time()
 end
 
-function addonMain:UpdateXP()
+function AZP.LevelingStatistics:UpdateXP()
     if (curLevel ~= UnitLevel("player")) then
         xpGained = xpGained + (xpMax - xpCur)
         xpMax = UnitXPMax("player")
@@ -60,27 +58,27 @@ function addonMain:UpdateXP()
 
     local timeDifference = time() - startTime
 
-    ModuleStats["Frames"]["LevelStats"].contentText:SetText(
+    ModuleStats["Frames"]["LevelingStatistics"].contentText:SetText(
         "XP Stats:\n" ..
-        "Current: " .. addonMain:Round(xpCur / 1000) .. "k / " .. addonMain:Round(xpMax / 1000) .. "k. (" .. addonMain:Round(xpCur / xpMax * 100) .. "%)\n" ..
+        "Current: " .. AZP.LevelingStatistics:Round(xpCur / 1000) .. "k / " .. AZP.LevelingStatistics:Round(xpMax / 1000) .. "k. (" .. AZP.LevelingStatistics:Round(xpCur / xpMax * 100) .. "%)\n" ..
         xpGained .. " Total XP Gained.\n" ..
-        "XP / Hour: " .. addonMain:Round(xpGained / 1000 / (timeDifference / 3600)) .. "k.\n" ..
-        addonMain:Round(xpNeed / addonMain:Round(xpGained / (timeDifference / 60))) .. " min to level " .. (curLevel + 1) .. ".\n" ..
-        "Aprox " .. addonMain:Round(xpMax / addonMain:Round(xpGained / (timeDifference / 60))) .. " minutes / level."
+        "XP / Hour: " .. AZP.LevelingStatistics:Round(xpGained / 1000 / (timeDifference / 3600)) .. "k.\n" ..
+        AZP.LevelingStatistics:Round(xpNeed / AZP.LevelingStatistics:Round(xpGained / (timeDifference / 60))) .. " min to level " .. (curLevel + 1) .. ".\n" ..
+        "Aprox " .. AZP.LevelingStatistics:Round(xpMax / AZP.LevelingStatistics:Round(xpGained / (timeDifference / 60))) .. " minutes / level."
     )
 end
 
-function AZP.GU.OnEvent:LevelStats(event, ...)
+function AZP.OnEvent:LevelingStatistics(event, ...)
     if event == "PLAYER_XP_UPDATE" then
-        addonMain:UpdateXP()
+        AZP.LevelingStatistics:UpdateXP()
     end
 end
 
-function addonMain:Round(x)
+function AZP.LevelingStatistics:Round(x)
     return math.floor(x + 0.5)
 end
 
-function addonMain:ChangeOptionsText()
+function AZP.LevelingStatistics:ChangeOptionsText()
     LevelStatsSubPanelPHTitle:Hide()
     LevelStatsSubPanelPHText:Hide()
     LevelStatsSubPanelPHTitle:SetParent(nil)
@@ -97,7 +95,7 @@ function addonMain:ChangeOptionsText()
     LevelStatsSubPanelText:SetHeight(LevelStatsSubPanel:GetHeight())
     LevelStatsSubPanelText:SetPoint("TOPLEFT", 0, -50)
     LevelStatsSubPanelText:SetText(
-        "AzerPUG-GameUtility-LevelStats does not have options yet.\n" ..
+        "AzerPUG's Leveling Statistics' does not have options yet.\n" ..
         "For feature requests visit our Discord Server!"
     )
 end
