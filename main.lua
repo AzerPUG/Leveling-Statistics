@@ -1,8 +1,14 @@
-local GlobalAddonName, AGU = ...
+if AZP == nil then AZP = {} end
+if AZP.VersionControl == nil then AZP.VersionControl = {} end
+if AZP.OnLoad == nil then AZP.OnLoad = {} end
+if AZP.OnEvent == nil then AZP.OnEvent = {} end
+if AZP.OnEvent == nil then AZP.OnEvent = {} end
+
+AZP.VersionControl.LevelingStatistics = 9
+AZP.LevelingStatistics = {}
 
 local initialConfig = AGU.initialConfig
 
-local AZPGULevelStatsVersion = 9
 local dash = " - "
 local name = "GameUtility" .. dash .. "LevelStats"
 local nameFull = ("AzerPUG " .. name)
