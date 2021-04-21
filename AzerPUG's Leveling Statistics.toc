@@ -6,4 +6,5 @@
 ## Version: SL 9.0.5 (For actual addon version, check LevelingStatistics.lua)
 ## SavedVariablesPerCharacter: AGUCheckedData
 
+SlashCommands.lua
 LevelingStatistics.lua
