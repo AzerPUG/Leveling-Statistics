@@ -1,20 +1,11 @@
 if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
-if AZP.OnLoad == nil then AZP.OnLoad = {} end
-if AZP.OnEvent == nil then AZP.OnEvent = {} end
-if AZP.OnEvent == nil then AZP.OnEvent = {} end
 
-AZP.VersionControl.LevelingStatistics = 9
+AZP.VersionControl["Leveling Statistics"] = 9
 AZP.LevelingStatistics = {}
 
-local initialConfig = AGU.initialConfig
-
-local dash = " - "
-local name = "GameUtility" .. dash .. "LevelStats"
-local nameFull = ("AzerPUG " .. name)
-local promo = (nameFull .. dash ..  AZPGULevelStatsVersion)
-
-local ModuleStats = AZP.Core.ModuleStats        -- Change to direct call!
+local AZPLSSelfOptionsPanel, AZPLSSelfFrame = nil, nil
+local EventFrame, UpdateFrame = nil, nil
 
 local xpMax = 0
 local xpCur = 0
@@ -23,20 +14,9 @@ local xpNeed = 0
 local curLevel = 0
 local startTime = 0
 
-function AZP.VersionControl:LevelingStatistics()
-    return AZPGULevelStatsVersion
-end
+local optionHeader = "|cFF00FFFFLeveling Statistics|r"
 
-function AZP.OnLoad:LevelingStatistics()
-    ModuleStats["Frames"]["LevelingStatistics"]:SetSize(250, 100)
-    AZP.LevelingStatistics:ChangeOptionsText()
-    GameUtilityAddonFrame:RegisterEvent("PLAYER_XP_UPDATE")
-    ModuleStats["Frames"]["LevelingStatistics"].contentText = ModuleStats["Frames"]["LevelingStatistics"]:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    ModuleStats["Frames"]["LevelingStatistics"].contentText:SetText("No EXP Gained Yet.")
-    ModuleStats["Frames"]["LevelingStatistics"].contentText:SetPoint("LEFT", 10, 0)
-    ModuleStats["Frames"]["LevelingStatistics"].contentText:SetSize(250, 100)
-    ModuleStats["Frames"]["LevelingStatistics"].contentText:SetJustifyH("LEFT")
-
+function AZP.LevelingStatistics:OnLoadBoth()
     xpMax = UnitXPMax("player")
     xpCur = UnitXP("player")
     xpNeed = xpGained - xpCur
@@ -44,7 +24,162 @@ function AZP.OnLoad:LevelingStatistics()
     startTime = time()
 end
 
-function AZP.LevelingStatistics:UpdateXP()
+function AZP.LevelingStatistics:OnLoadCore()
+    AZP.Core:RegisterEvents("PLAYER_XP_UPDATE", function(...) AZP.LevelingStatistics:eventPlayerXPUpdate(...) end)
+
+    AZP.LevelingStatistics:OnLoadBoth()
+
+    AZP.OptionsPanels:RemovePanel("Leveling Statistics")
+    AZP.OptionsPanels:Generic("Leveling Statistics", optionHeader, function(frame) AZP.LevelingStatistics:FillOptionsPanel(frame) end)
+end
+
+function AZP.LevelingStatistics:OnLoadSelf()
+    C_ChatInfo.RegisterAddonMessagePrefix("AZPVERSIONS")
+
+    EventFrame = CreateFrame("FRAME", nil)
+    EventFrame:RegisterEvent("PLAYER_XP_UPDATE")
+    EventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+    EventFrame:RegisterEvent("CHAT_MSG_ADDON")
+    EventFrame:SetScript("OnEvent", function(...) AZP.InstanceLeadership:OnEvent(...) end)
+
+    UpdateFrame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+    UpdateFrame:SetPoint("CENTER", 0, 250)
+    UpdateFrame:SetSize(400, 200)
+    UpdateFrame:SetBackdrop({
+        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        edgeSize = 12,
+        insets = { left = 1, right = 1, top = 1, bottom = 1 },
+    })
+    UpdateFrame:SetBackdropColor(0.25, 0.25, 0.25, 0.80)
+    UpdateFrame.header = UpdateFrame:CreateFontString("UpdateFrame", "ARTWORK", "GameFontNormalHuge")
+    UpdateFrame.header:SetPoint("TOP", 0, -10)
+    UpdateFrame.header:SetText("|cFFFF0000AzerPUG's InstanceLeadership is out of date!|r")
+
+    UpdateFrame.text = UpdateFrame:CreateFontString("UpdateFrame", "ARTWORK", "GameFontNormalLarge")
+    UpdateFrame.text:SetPoint("TOP", 0, -40)
+    UpdateFrame.text:SetText("Error!")
+
+    UpdateFrame:Hide()
+
+    local UpdateFrameCloseButton = CreateFrame("Button", nil, UpdateFrame, "UIPanelCloseButton")
+    UpdateFrameCloseButton:SetWidth(25)
+    UpdateFrameCloseButton:SetHeight(25)
+    UpdateFrameCloseButton:SetPoint("TOPRIGHT", UpdateFrame, "TOPRIGHT", 2, 2)
+    UpdateFrameCloseButton:SetScript("OnClick", function() UpdateFrame:Hide() end )
+
+
+    AZPLSSelfFrame = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
+    AZPLSSelfFrame:SetSize(110, 220)
+    AZPLSSelfFrame:SetPoint("CENTER", 0, 0)
+    AZPLSSelfFrame:SetScript("OnDragStart", AZPLSSelfFrame.StartMoving)
+    AZPLSSelfFrame:SetScript("OnDragStop", function()
+        AZPLSSelfFrame:StopMovingOrSizing()
+        AZP.InstanceLeadership:SaveMainFrameLocation()
+    end)
+    AZPLSSelfFrame:RegisterForDrag("LeftButton")
+    AZPLSSelfFrame:EnableMouse(true)
+    AZPLSSelfFrame:SetMovable(true)
+    AZPLSSelfFrame:SetBackdrop({
+        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        edgeSize = 12,
+        insets = { left = 1, right = 1, top = 1, bottom = 1 },
+    })
+    AZPLSSelfFrame:SetBackdropColor(0.5, 0.5, 0.5, 0.75)
+
+    local IUAddonFrameCloseButton = CreateFrame("Button", nil, AZPLSSelfFrame, "UIPanelCloseButton")
+    IUAddonFrameCloseButton:SetSize(20, 21)
+    IUAddonFrameCloseButton:SetPoint("TOPRIGHT", AZPLSSelfFrame, "TOPRIGHT", 2, 2)
+    IUAddonFrameCloseButton:SetScript("OnClick", function() AZP.InstanceLeadership:ShowHideFrame() end )
+
+    AZPLSSelfOptionsPanel = CreateFrame("FRAME", nil)
+    AZPLSSelfOptionsPanel.name = optionHeader
+    InterfaceOptions_AddCategory(AZPLSSelfOptionsPanel)
+    AZPLSSelfOptionsPanel.header = AZPLSSelfOptionsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+    AZPLSSelfOptionsPanel.header:SetPoint("TOP", 0, -10)
+    AZPLSSelfOptionsPanel.header:SetText("|cFF00FFFFAzerPUG's Leveling Statistics Options!|r")
+
+    AZPLSSelfOptionsPanel.footer = AZPLSSelfOptionsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    AZPLSSelfOptionsPanel.footer:SetPoint("TOP", 0, -300)
+    AZPLSSelfOptionsPanel.footer:SetText(
+        "|cFF00FFFFAzerPUG Links:\n" ..
+        "Website: www.azerpug.com\n" ..
+        "Discord: www.azerpug.com/discord\n" ..
+        "Twitch: www.twitch.tv/azerpug\n|r"
+    )
+
+    AZP.LevelingStatistics:FillOptionsPanel(AZPLSSelfOptionsPanel)
+
+    AZP.Core.AddOns["Frames"]["LevelingStatistics"]:SetSize(250, 100)
+    AZP.Core.AddOns["Frames"]["LevelingStatistics"].text = AZP.Core.AddOns["Frames"]["LevelingStatistics"]:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    AZP.Core.AddOns["Frames"]["LevelingStatistics"].text:SetText("No EXP Gained Yet.")
+    AZP.Core.AddOns["Frames"]["LevelingStatistics"].text:SetPoint("LEFT", 10, 0)
+    AZP.Core.AddOns["Frames"]["LevelingStatistics"].text:SetSize(250, 100)
+    AZP.Core.AddOns["Frames"]["LevelingStatistics"].text:SetJustifyH("LEFT")
+
+end
+
+function AZP.LevelingStatistics:DelayedExecution(delayTime, delayedFunction)
+    local frame = CreateFrame("Frame")
+    frame.start_time = GetServerTime()
+    frame:SetScript("OnUpdate",
+        function(self)
+            if GetServerTime() - self.start_time > delayTime then
+                delayedFunction()
+                self:SetScript("OnUpdate", nil)
+                self:Hide()
+            end
+        end
+    )
+    frame:Show()
+end
+
+function AZP.LevelingStatistics:ShareVersion()    -- Change DelayedExecution to native WoW Function.
+    local versionString = string.format("|TT:%d|", AZP.VersionControl["LevelingStatistics"])
+    AZP.LevelingStatistics:DelayedExecution(10, function() 
+        if IsInGroup() then
+            if IsInRaid() then
+                C_ChatInfo.SendAddonMessage("AZPVERSIONS", versionString ,"RAID", 1)
+            else
+                C_ChatInfo.SendAddonMessage("AZPVERSIONS", versionString ,"PARTY", 1)
+            end
+        end
+        if IsInGuild() then
+            C_ChatInfo.SendAddonMessage("AZPVERSIONS", versionString ,"GUILD", 1)
+        end
+    end)
+end
+
+function AZP.LevelingStatistics:ReceiveVersion(version)
+    if version > AZP.VersionControl["LevelingStatistics"] then
+        if (not HaveShowedUpdateNotification) then
+            HaveShowedUpdateNotification = true
+            UpdateFrame:Show()
+            UpdateFrame.text:SetText(
+                "Please download the new version through the CurseForge app.\n" ..
+                "Or use the CurseForge website to download it manually!\n\n" ..
+                "Newer Version: v" .. version .. "\n" ..
+                "Your version: v" .. AZP.VersionControl["LevelingStatistics"]
+            )
+        end
+    end
+end
+
+function AZP.LevelingStatistics:GetSpecificAddonVersion(versionString, addonWanted)
+    local pattern = "|([A-Z]+):([0-9]+)|"
+    local index = 1
+    while index < #versionString do
+        local _, endPos = string.find(versionString, pattern, index)
+        local addon, version = string.match(versionString, pattern, index)
+        index = endPos + 1
+        if addon == addonWanted then
+            return tonumber(version)
+        end
+    end
+end
+
+function AZP.LevelingStatistics:eventPlayerXPUpdate()
     if (curLevel ~= UnitLevel("player")) then
         xpGained = xpGained + (xpMax - xpCur)
         xpMax = UnitXPMax("player")
@@ -58,7 +193,7 @@ function AZP.LevelingStatistics:UpdateXP()
 
     local timeDifference = time() - startTime
 
-    ModuleStats["Frames"]["LevelingStatistics"].contentText:SetText(
+    AZPLSSelfFrame.text:SetText(
         "XP Stats:\n" ..
         "Current: " .. AZP.LevelingStatistics:Round(xpCur / 1000) .. "k / " .. AZP.LevelingStatistics:Round(xpMax / 1000) .. "k. (" .. AZP.LevelingStatistics:Round(xpCur / xpMax * 100) .. "%)\n" ..
         xpGained .. " Total XP Gained.\n" ..
@@ -68,9 +203,19 @@ function AZP.LevelingStatistics:UpdateXP()
     )
 end
 
-function AZP.OnEvent:LevelingStatistics(event, ...)
-    if event == "PLAYER_XP_UPDATE" then
-        AZP.LevelingStatistics:UpdateXP()
+function AZP.OnEvent:LevelingStatistics(self, event, ...)
+    if event == "CHAT_MSG_ADDON" then
+        local prefix, payload, _, sender = ...
+        if prefix == "AZPVERSIONS" then
+            local version = AZP.LevelingStatistics:GetSpecificAddonVersion(payload, "TT")
+            if version ~= nil then
+                AZP.LevelingStatistics:ReceiveVersion(version)
+            end
+        end
+    elseif event == "GROUP_ROSTER_UPDATE" then
+        AZP.LevelingStatistics:ShareVersion()
+    elseif event == "PLAYER_XP_UPDATE" then
+        AZP.LevelingStatistics:eventPlayerXPUpdate()
     end
 end
 
