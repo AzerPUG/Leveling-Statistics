@@ -22,9 +22,16 @@ function AZP.LevelingStatistics:OnLoadBoth()
     xpNeed = xpGained - xpCur
     curLevel = UnitLevel("player")
     startTime = time()
+
+    AZPLSSelfFrame.text = AZPLSSelfFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    AZPLSSelfFrame.text:SetText("No EXP Gained Yet.")
+    AZPLSSelfFrame.text:SetPoint("LEFT", 10, 0)
+    AZPLSSelfFrame.text:SetSize(AZPLSSelfFrame:GetWidth(), AZPLSSelfFrame:GetHeight())
+    AZPLSSelfFrame.text:SetJustifyH("LEFT")
 end
 
 function AZP.LevelingStatistics:OnLoadCore()
+    AZPLSSelfFrame = AZP.Core.AddOns.LS.MainFrame
     AZP.Core:RegisterEvents("PLAYER_XP_UPDATE", function(...) AZP.LevelingStatistics:eventPlayerXPUpdate(...) end)
 
     AZP.LevelingStatistics:OnLoadBoth()
@@ -40,6 +47,7 @@ function AZP.LevelingStatistics:OnLoadSelf()
     EventFrame:RegisterEvent("PLAYER_XP_UPDATE")
     EventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
     EventFrame:RegisterEvent("CHAT_MSG_ADDON")
+    EventFrame:RegisterEvent("VARIABLES_LOADED")
     EventFrame:SetScript("OnEvent", function(...) AZP.LevelingStatistics:OnEvent(...) end)
 
     UpdateFrame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
@@ -68,9 +76,8 @@ function AZP.LevelingStatistics:OnLoadSelf()
     UpdateFrameCloseButton:SetPoint("TOPRIGHT", UpdateFrame, "TOPRIGHT", 2, 2)
     UpdateFrameCloseButton:SetScript("OnClick", function() UpdateFrame:Hide() end )
 
-
     AZPLSSelfFrame = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
-    AZPLSSelfFrame:SetSize(110, 220)
+    AZPLSSelfFrame:SetSize(250, 100)
     AZPLSSelfFrame:SetPoint("CENTER", 0, 0)
     AZPLSSelfFrame:SetScript("OnDragStart", AZPLSSelfFrame.StartMoving)
     AZPLSSelfFrame:SetScript("OnDragStop", function()
@@ -88,10 +95,10 @@ function AZP.LevelingStatistics:OnLoadSelf()
     })
     AZPLSSelfFrame:SetBackdropColor(0.5, 0.5, 0.5, 0.75)
 
-    local IUAddonFrameCloseButton = CreateFrame("Button", nil, AZPLSSelfFrame, "UIPanelCloseButton")
-    IUAddonFrameCloseButton:SetSize(20, 21)
-    IUAddonFrameCloseButton:SetPoint("TOPRIGHT", AZPLSSelfFrame, "TOPRIGHT", 2, 2)
-    IUAddonFrameCloseButton:SetScript("OnClick", function() AZP.LevelingStatistics:ShowHideFrame() end )
+    local AZPLSSelfFrameCloseButton = CreateFrame("Button", nil, AZPLSSelfFrame, "UIPanelCloseButton")
+    AZPLSSelfFrameCloseButton:SetSize(20, 21)
+    AZPLSSelfFrameCloseButton:SetPoint("TOPRIGHT", AZPLSSelfFrame, "TOPRIGHT", 2, 2)
+    AZPLSSelfFrameCloseButton:SetScript("OnClick", function() AZP.LevelingStatistics:ShowHideFrame() end )
 
     AZPLSSelfOptionsPanel = CreateFrame("FRAME", nil)
     AZPLSSelfOptionsPanel.name = optionHeader
@@ -108,15 +115,8 @@ function AZP.LevelingStatistics:OnLoadSelf()
         "Discord: www.azerpug.com/discord\n" ..
         "Twitch: www.twitch.tv/azerpug\n|r"
     )
-
+    AZP.LevelingStatistics:OnLoadBoth()
     AZP.LevelingStatistics:FillOptionsPanel(AZPLSSelfOptionsPanel)
-
-    AZP.Core.AddOns["Frames"]["LevelingStatistics"]:SetSize(250, 100)
-    AZP.Core.AddOns["Frames"]["LevelingStatistics"].text = AZP.Core.AddOns["Frames"]["LevelingStatistics"]:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    AZP.Core.AddOns["Frames"]["LevelingStatistics"].text:SetText("No EXP Gained Yet.")
-    AZP.Core.AddOns["Frames"]["LevelingStatistics"].text:SetPoint("LEFT", 10, 0)
-    AZP.Core.AddOns["Frames"]["LevelingStatistics"].text:SetSize(250, 100)
-    AZP.Core.AddOns["Frames"]["LevelingStatistics"].text:SetJustifyH("LEFT")
 end
 
 function AZP.LevelingStatistics:DelayedExecution(delayTime, delayedFunction)
@@ -134,12 +134,18 @@ function AZP.LevelingStatistics:DelayedExecution(delayTime, delayedFunction)
     frame:Show()
 end
 
+function AZP.LevelingStatistics:SaveMainFrameLocation()
+    local temp = {}
+    temp[1], temp[2], temp[3], temp[4], temp[5] = AZPLSSelfFrame:GetPoint()
+    AZPLSLocation = temp
+end
+
 function AZP.LevelingStatistics:ShowHideFrame()
-    if LevelingStatisticsSelfFrame:IsShown() then
-        LevelingStatisticsSelfFrame:Hide()
+    if AZPLSSelfFrame:IsShown() then
+        AZPLSSelfFrame:Hide()
         AZPLSShown = false
-    elseif not LevelingStatisticsSelfFrame:IsShown() then
-        LevelingStatisticsSelfFrame:Show()
+    elseif not AZPLSSelfFrame:IsShown() then
+        AZPLSSelfFrame:Show()
         AZPLSShown = true
     end
 end
@@ -212,6 +218,17 @@ function AZP.LevelingStatistics:eventPlayerXPUpdate()
     )
 end
 
+function AZP.LevelingStatistics:eventVariablesLoaded(...)
+    if AZPLSShown == false then
+        AZPLSSelfFrame:Hide()
+    end
+
+    if AZPLSLocation == nil then
+        AZPLSLocation = {"CENTER", nil, nil, 200, 0}
+    end
+    AZPLSSelfFrame:SetPoint(AZPLSLocation[1], AZPLSLocation[4], AZPLSLocation[5])
+end
+
 function AZP.LevelingStatistics:OnEvent(self, event, ...)
     if event == "CHAT_MSG_ADDON" then
         local prefix, payload, _, sender = ...
@@ -226,6 +243,7 @@ function AZP.LevelingStatistics:OnEvent(self, event, ...)
     elseif event == "PLAYER_XP_UPDATE" then
         AZP.LevelingStatistics:eventPlayerXPUpdate()
     elseif event == "VARIABLES_LOADED" then
+        AZP.LevelingStatistics:eventVariablesLoaded(...)
     end
 end
 
@@ -237,8 +255,13 @@ function AZP.LevelingStatistics:Round(x)
     return math.floor(x + 0.5)
 end
 
+if not IsAddOnLoaded("AzerPUGsCore") then
+    AZP.LevelingStatistics:OnLoadSelf()
+end
+
 AZP.SlashCommands["LS"] = function()
-    if LevelingStatisticsSelfFrame ~= nil then AZP.LevelingStatistics:ShowHideFrame() end
+    print("SlashCommand Called!")
+    if AZPLSSelfFrame ~= nil then AZP.LevelingStatistics:ShowHideFrame() end
 end
 
 AZP.SlashCommands["ls"] = AZP.SlashCommands["LS"]
