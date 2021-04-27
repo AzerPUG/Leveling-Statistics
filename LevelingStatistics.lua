@@ -117,7 +117,6 @@ function AZP.LevelingStatistics:OnLoadSelf()
     AZP.Core.AddOns["Frames"]["LevelingStatistics"].text:SetPoint("LEFT", 10, 0)
     AZP.Core.AddOns["Frames"]["LevelingStatistics"].text:SetSize(250, 100)
     AZP.Core.AddOns["Frames"]["LevelingStatistics"].text:SetJustifyH("LEFT")
-
 end
 
 function AZP.LevelingStatistics:DelayedExecution(delayTime, delayedFunction)
@@ -146,7 +145,7 @@ function AZP.LevelingStatistics:ShowHideFrame()
 end
 
 function AZP.LevelingStatistics:ShareVersion()    -- Change DelayedExecution to native WoW Function.
-    local versionString = string.format("|TT:%d|", AZP.VersionControl["LevelingStatistics"])
+    local versionString = string.format("|LS:%d|", AZP.VersionControl["Leveling Statistics"])
     AZP.LevelingStatistics:DelayedExecution(10, function() 
         if IsInGroup() then
             if IsInRaid() then
@@ -162,7 +161,7 @@ function AZP.LevelingStatistics:ShareVersion()    -- Change DelayedExecution to 
 end
 
 function AZP.LevelingStatistics:ReceiveVersion(version)
-    if version > AZP.VersionControl["LevelingStatistics"] then
+    if version > AZP.VersionControl["Leveling Statistics"] then
         if (not HaveShowedUpdateNotification) then
             HaveShowedUpdateNotification = true
             UpdateFrame:Show()
@@ -170,7 +169,7 @@ function AZP.LevelingStatistics:ReceiveVersion(version)
                 "Please download the new version through the CurseForge app.\n" ..
                 "Or use the CurseForge website to download it manually!\n\n" ..
                 "Newer Version: v" .. version .. "\n" ..
-                "Your version: v" .. AZP.VersionControl["LevelingStatistics"]
+                "Your version: v" .. AZP.VersionControl["Leveling Statistics"]
             )
         end
     end
@@ -217,7 +216,7 @@ function AZP.LevelingStatistics:OnEvent(self, event, ...)
     if event == "CHAT_MSG_ADDON" then
         local prefix, payload, _, sender = ...
         if prefix == "AZPVERSIONS" then
-            local version = AZP.LevelingStatistics:GetSpecificAddonVersion(payload, "TT")
+            local version = AZP.LevelingStatistics:GetSpecificAddonVersion(payload, "LS")
             if version ~= nil then
                 AZP.LevelingStatistics:ReceiveVersion(version)
             end
