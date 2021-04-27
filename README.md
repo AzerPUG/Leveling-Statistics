@@ -16,7 +16,7 @@
 AzerPUG's Leveling Statistics shows you statistics on how quickly you level. Time per level, time until next level. Amount of XP needed per level, and so forth.
 
 # Bugs, Errors, Glitches and Requests.
-If you find any of the above, please do not hessitate to create a GitHub Issue here: https://github.com/AzerPUG/Leveling-Statistics/issues  
+If you find any of the above, please do not hesitate to create a GitHub Issue here: https://github.com/AzerPUG/Leveling-Statistics/issues  
 Or you can join our Discord and let us know in the AzerTech channel: http://www.azerpug.com/discord  
 Please note that our Discord Verification level prevents new people from talking/commenting/ranking in the first 10 minutes!
 
