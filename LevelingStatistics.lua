@@ -40,7 +40,7 @@ function AZP.LevelingStatistics:OnLoadSelf()
     EventFrame:RegisterEvent("PLAYER_XP_UPDATE")
     EventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
     EventFrame:RegisterEvent("CHAT_MSG_ADDON")
-    EventFrame:SetScript("OnEvent", function(...) AZP.InstanceLeadership:OnEvent(...) end)
+    EventFrame:SetScript("OnEvent", function(...) AZP.LevelingStatistics:OnEvent(...) end)
 
     UpdateFrame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
     UpdateFrame:SetPoint("CENTER", 0, 250)
@@ -54,7 +54,7 @@ function AZP.LevelingStatistics:OnLoadSelf()
     UpdateFrame:SetBackdropColor(0.25, 0.25, 0.25, 0.80)
     UpdateFrame.header = UpdateFrame:CreateFontString("UpdateFrame", "ARTWORK", "GameFontNormalHuge")
     UpdateFrame.header:SetPoint("TOP", 0, -10)
-    UpdateFrame.header:SetText("|cFFFF0000AzerPUG's InstanceLeadership is out of date!|r")
+    UpdateFrame.header:SetText("|cFFFF0000AzerPUG's Leveling Statistics is out of date!|r")
 
     UpdateFrame.text = UpdateFrame:CreateFontString("UpdateFrame", "ARTWORK", "GameFontNormalLarge")
     UpdateFrame.text:SetPoint("TOP", 0, -40)
@@ -75,7 +75,7 @@ function AZP.LevelingStatistics:OnLoadSelf()
     AZPLSSelfFrame:SetScript("OnDragStart", AZPLSSelfFrame.StartMoving)
     AZPLSSelfFrame:SetScript("OnDragStop", function()
         AZPLSSelfFrame:StopMovingOrSizing()
-        AZP.InstanceLeadership:SaveMainFrameLocation()
+        AZP.LevelingStatistics:SaveMainFrameLocation()
     end)
     AZPLSSelfFrame:RegisterForDrag("LeftButton")
     AZPLSSelfFrame:EnableMouse(true)
@@ -91,7 +91,7 @@ function AZP.LevelingStatistics:OnLoadSelf()
     local IUAddonFrameCloseButton = CreateFrame("Button", nil, AZPLSSelfFrame, "UIPanelCloseButton")
     IUAddonFrameCloseButton:SetSize(20, 21)
     IUAddonFrameCloseButton:SetPoint("TOPRIGHT", AZPLSSelfFrame, "TOPRIGHT", 2, 2)
-    IUAddonFrameCloseButton:SetScript("OnClick", function() AZP.InstanceLeadership:ShowHideFrame() end )
+    IUAddonFrameCloseButton:SetScript("OnClick", function() AZP.LevelingStatistics:ShowHideFrame() end )
 
     AZPLSSelfOptionsPanel = CreateFrame("FRAME", nil)
     AZPLSSelfOptionsPanel.name = optionHeader
@@ -133,6 +133,16 @@ function AZP.LevelingStatistics:DelayedExecution(delayTime, delayedFunction)
         end
     )
     frame:Show()
+end
+
+function AZP.LevelingStatistics:ShowHideFrame()
+    if LevelingStatisticsSelfFrame:IsShown() then
+        LevelingStatisticsSelfFrame:Hide()
+        AZPLSShown = false
+    elseif not LevelingStatisticsSelfFrame:IsShown() then
+        LevelingStatisticsSelfFrame:Show()
+        AZPLSShown = true
+    end
 end
 
 function AZP.LevelingStatistics:ShareVersion()    -- Change DelayedExecution to native WoW Function.
@@ -203,7 +213,7 @@ function AZP.LevelingStatistics:eventPlayerXPUpdate()
     )
 end
 
-function AZP.OnEvent:LevelingStatistics(self, event, ...)
+function AZP.LevelingStatistics:OnEvent(self, event, ...)
     if event == "CHAT_MSG_ADDON" then
         local prefix, payload, _, sender = ...
         if prefix == "AZPVERSIONS" then
@@ -216,7 +226,12 @@ function AZP.OnEvent:LevelingStatistics(self, event, ...)
         AZP.LevelingStatistics:ShareVersion()
     elseif event == "PLAYER_XP_UPDATE" then
         AZP.LevelingStatistics:eventPlayerXPUpdate()
+    elseif event == "VARIABLES_LOADED" then
     end
+end
+
+function AZP.LevelingStatistics:FillOptionsPanel(frameToFill)
+    frameToFill:Hide()
 end
 
 function AZP.LevelingStatistics:Round(x)
@@ -224,7 +239,7 @@ function AZP.LevelingStatistics:Round(x)
 end
 
 AZP.SlashCommands["LS"] = function()
-    if LevelingStatisticsSelfFrame ~= nil then LevelingStatisticsSelfFrame:Show() end
+    if LevelingStatisticsSelfFrame ~= nil then AZP.LevelingStatistics:ShowHideFrame() end
 end
 
 AZP.SlashCommands["ls"] = AZP.SlashCommands["LS"]

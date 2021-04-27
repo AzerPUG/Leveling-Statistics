@@ -4,7 +4,7 @@
 ## OptionalDeps: AzerPUGsCore
 ## Notes: Utility for the Game!
 ## Version: SL 9.0.5 (For actual addon version, check LevelingStatistics.lua)
-## SavedVariablesPerCharacter: AGUCheckedData
+## SavedVariables: AZPLSLocation, AZPLSShown
 
 SlashCommands.lua
 LevelingStatistics.lua
