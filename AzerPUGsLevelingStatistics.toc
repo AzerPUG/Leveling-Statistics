@@ -1,0 +1,10 @@
+## Interface: 90005
+## Title: |cFF00FFFFAzerPUG's|r |cFFFF00FFLeveling Statistics|r
+## Author: Tex & AzerPUG Gaming Community (www.azerpug.com/discord)
+## OptionalDeps: AzerPUGsCore
+## Notes: Utility for the Game!
+## Version: SL 9.0.5 (For actual addon version, check LevelingStatistics.lua)
+## SavedVariables: AZPLSLocation, AZPLSShown
+
+SlashCommands.lua
+LevelingStatistics.lua
