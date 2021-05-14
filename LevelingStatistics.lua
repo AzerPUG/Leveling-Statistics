@@ -1,7 +1,7 @@
 if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 
-AZP.VersionControl["Leveling Statistics"] = 10
+AZP.VersionControl["Leveling Statistics"] = 11
 AZP.LevelingStatistics = {}
 
 local AZPLSSelfOptionsPanel, AZPLSSelfFrame = nil, nil
