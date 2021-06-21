@@ -2,7 +2,8 @@ if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 
 AZP.VersionControl["Leveling Statistics"] = 11
-AZP.LevelingStatistics = {}
+if AZP.LevelingStatistics == nil then AZP.LevelingStatistics = {} end
+if AZP.LevelingStatistics.Events == nil then AZP.LevelingStatistics.Events = {} end
 
 local AZPLSSelfOptionsPanel, AZPLSSelfFrame = nil, nil
 local EventFrame, UpdateFrame = nil, nil
@@ -32,8 +33,8 @@ end
 
 function AZP.LevelingStatistics:OnLoadCore()
     AZPLSSelfFrame = AZP.Core.AddOns.LS.MainFrame
-    AZP.Core:RegisterEvents("PLAYER_XP_UPDATE", function(...) AZP.LevelingStatistics:eventPlayerXPUpdate(...) end)
-
+    AZP.Core:RegisterEvents("PLAYER_XP_UPDATE", function(...) AZP.LevelingStatistics.Events:PlayerXPUpdate(...) end)
+    -- XXX Variables Loaded not registered?
     AZP.LevelingStatistics:OnLoadBoth()
 
     AZP.OptionsPanels:RemovePanel("Leveling Statistics")
@@ -198,7 +199,7 @@ function AZP.LevelingStatistics:GetSpecificAddonVersion(versionString, addonWant
     end
 end
 
-function AZP.LevelingStatistics:eventPlayerXPUpdate()
+function AZP.LevelingStatistics.Events:PlayerXPUpdate()
     if (curLevel ~= UnitLevel("player")) then
         xpGained = xpGained + (xpMax - xpCur)
         xpMax = UnitXPMax("player")
@@ -222,7 +223,7 @@ function AZP.LevelingStatistics:eventPlayerXPUpdate()
     )
 end
 
-function AZP.LevelingStatistics:eventVariablesLoaded(...)
+function AZP.LevelingStatistics.Events:VariablesLoaded(...)
     if AZPLSShown == false then
         AZPLSSelfFrame:Hide()
     end
@@ -245,9 +246,9 @@ function AZP.LevelingStatistics:OnEvent(self, event, ...)
     elseif event == "GROUP_ROSTER_UPDATE" then
         AZP.LevelingStatistics:ShareVersion()
     elseif event == "PLAYER_XP_UPDATE" then
-        AZP.LevelingStatistics:eventPlayerXPUpdate()
+        AZP.LevelingStatistics.Events:PlayerXPUpdate()
     elseif event == "VARIABLES_LOADED" then
-        AZP.LevelingStatistics:eventVariablesLoaded(...)
+        AZP.LevelingStatistics.Events:VariablesLoaded(...)
     end
 end
 
