@@ -1,7 +1,7 @@
 if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 
-AZP.VersionControl["Leveling Statistics"] = 12
+AZP.VersionControl["Leveling Statistics"] = 13
 if AZP.LevelingStatistics == nil then AZP.LevelingStatistics = {} end
 if AZP.LevelingStatistics.Events == nil then AZP.LevelingStatistics.Events = {} end
 
